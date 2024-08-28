@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://dlqpeffvil2jv"]
+
+[ext_resource type="Script" path="res://tile.gd" id="1_w6c8g"]
+[ext_resource type="Texture2D" uid="uid://dge02qsg78gxp" path="res://icon.svg" id="2_lfgfp"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="RigidBody2D" type="RigidBody2D" parent="."]
+gravity_scale = 0.0
+freeze = true
+script = ExtResource("1_w6c8g")
+
+[node name="Sprite2D" type="Sprite2D" parent="RigidBody2D"]
+texture = ExtResource("2_lfgfp")
