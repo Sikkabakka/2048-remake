@@ -97,7 +97,9 @@ func merge(first_tile, next_tile):
 	unoccupiedSpaces.append(first_tile)
 	unoccupiedSpaces.erase(next_tile)
 	
-	
+'''
+for å fikse mergingen kan du adde en has merged i tilesa
+'''
 func calc_position(index: Vector2):
 	return Vector2(index[0], index[1])*(tilesize + border) + offsett
 func check_right(position: Vector2):
