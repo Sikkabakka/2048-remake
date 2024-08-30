@@ -4,7 +4,7 @@ extends Control
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	initialize_map(map_size)
-	spawn_tile()
+	spawn_random_tile()
 	pass # Replace with function body.
 
 var map_size = 4;
@@ -19,15 +19,25 @@ var border = 20
 var not_moving = true
 var offsett = -Vector2(calc_map_size(), calc_map_size())/2
 
+
+var colorDict = {
+	2 : "yellow",
+	4 : "orange",
+	8 : "red"
+}
+
+
 func initialize_map(size) -> void:
 
 	for i in range(size):
 		var mellomliste = []
 		for j in range(size):
 			var background = backgroundTile.instantiate()
-			print(calc_position(Vector2(i, j)), " ", i, j)
 			background.position = calc_position(Vector2(i, j))
+			#background.get_node("Label").text = str(Vector2(i, j))
 			add_child(background)
+			
+			
 			mellomliste.append(0)
 			unoccupiedSpaces.append(Vector2(i, j))
 		map.append(mellomliste)
@@ -42,7 +52,7 @@ func get_random_position():
 	unoccupiedSpaces.pop_at(randint)
 	return (pos)
 
-func spawn_tile():
+func spawn_random_tile():
 	var tileInstance = tile.instantiate()
 	var pos = get_random_position()
 
@@ -62,9 +72,31 @@ func test():
 	
 func update_maps(index, next_index):
 	map[next_index[0]][next_index[1]] = map[index[0]][index[1]]
-	refrence_map[next_index[0]][next_index[1]] = refrence_map[index[0]][index[1]]
 	map[index[0]][index[1]] = 0
+	
+	refrence_map[next_index[0]][next_index[1]] = refrence_map[index[0]][index[1]]
 	refrence_map[index[0]][index[1]] = 0
+	
+	unoccupiedSpaces.append(index)
+	unoccupiedSpaces.erase(next_index)
+
+func merge(first_tile, next_tile):
+	
+	refrence_map[first_tile[0]][first_tile[1]].die()
+	refrence_map[first_tile[0]][first_tile[1]] = 0
+	
+	var next_tile_ref = refrence_map[next_tile[0]][next_tile[1]]
+	var value = map[first_tile[0]][first_tile[1]] *2
+	
+	next_tile_ref.get_node("Label").text = str(value)
+	next_tile_ref.color = colorDict.get(value, "purple")
+	
+	map[next_tile[0]][next_tile[1]] = value
+	map[first_tile[0]][first_tile[1]] = 0
+	
+	unoccupiedSpaces.append(first_tile)
+	unoccupiedSpaces.erase(next_tile)
+	
 	
 func calc_position(index: Vector2):
 	return Vector2(index[0], index[1])*(tilesize + border) + offsett
@@ -100,7 +132,6 @@ func move_down():
 		for j in range(map_size-1, -1, -1):
 			if refrence_map[i][j]:
 				move(Vector2(i, j),check_down(Vector2(i, j)), Vector2(0, -1))
-
 func move_up():
 
 	for i in range(map_size):
@@ -121,27 +152,39 @@ func move_right():
 				move(Vector2(i, j),check_right(Vector2(i, j)), Vector2(-1, 0) )
 				
 func move(first_tile, next_tile, direction):
-		if map[next_tile[0]][next_tile[1]] == 0:
-			refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile))
-			update_maps(first_tile, next_tile)
-			
-		#elif map[next_tile[0]][next_tile[1]] == map[first_tile[0]][first_tile[1]]:
-##			merge
-			#pass
-		else:
-			refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile + direction))
-			update_maps(first_tile, next_tile + direction)
+		if first_tile != next_tile:
+			if map[next_tile[0]][next_tile[1]] == 0:
+				refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile))
+				update_maps(first_tile, next_tile)
+				print("move")
+				print(refrence_map)
+				print(map)
+				print(next_tile)
+				
+			elif map[next_tile[0]][next_tile[1]] == map[first_tile[0]][first_tile[1]]:
+				merge(first_tile, next_tile)
+				print("merge")
+				print(refrence_map)
+				print(map)
+				
+			elif first_tile != next_tile+direction:
+				refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile + direction))
+				update_maps(first_tile, next_tile + direction)
 
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("space"):
-		spawn_tile()
+		spawn_random_tile()
 	if not_moving:
 		if Input.is_action_just_pressed("move_down"):
 			move_down()
+			spawn_random_tile()
 		if Input.is_action_just_pressed("move_right"):
 			move_right()
+			spawn_random_tile()
 		if Input.is_action_just_pressed("move_left"):
 			move_left()
+			spawn_random_tile()
 		if Input.is_action_just_pressed("move_up"):
 			move_up()
+			spawn_random_tile()
