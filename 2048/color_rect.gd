@@ -4,7 +4,6 @@ var speed = 10
 var not_moving = true
 @onready var label: Label = $Label
 var value = 2
-var startPosition = Vector2(100, 0)
 var tilesize = Vector2(100, 100)
 # Called when the node enters the scene tree for the first time.
 
@@ -16,13 +15,8 @@ func _ready() -> void:
 		self.color = "yellow"
 	self.size = tilesize
 	
-	self.position = startPosition - tilesize/2
 	
 	
-
-
-
-
 
 func move(position: Vector2) -> void:
 	not_moving = false

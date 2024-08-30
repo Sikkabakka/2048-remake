@@ -40,5 +40,3 @@ label_settings = SubResource("LabelSettings_pevpe")
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 1
-
-[node name="Camera2D" type="Camera2D" parent="."]
