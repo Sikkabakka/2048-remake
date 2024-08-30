@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://cgep1l0cjs5xc"]
+
+[ext_resource type="Script" path="res://backgroundTile.gd" id="1_mfjc7"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mfjc7")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+z_index = -1
+layout_mode = 0
+offset_left = -50.0
+offset_top = -50.0
+offset_right = 50.0
+offset_bottom = 50.0
+
+[node name="ColorRect2" type="ColorRect" parent="ColorRect"]
+z_index = -2
+layout_mode = 0
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 110.0
+offset_bottom = 110.0
+color = Color(0, 0, 0, 1)

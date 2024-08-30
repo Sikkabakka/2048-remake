@@ -13,50 +13,45 @@ var refrence_map = []
 var tilesize = 100
 var rand = RandomNumberGenerator.new()
 var tile = preload("res://Tile.tscn")
+var backgroundTile = preload("res://backgroundTile.tscn")
 var unoccupiedSpaces = []
-
+var border = 20
 var not_moving = true
-
+var offsett = -Vector2(calc_map_size(), calc_map_size())/2
 
 func initialize_map(size) -> void:
+
 	for i in range(size):
 		var mellomliste = []
 		for j in range(size):
+			var background = backgroundTile.instantiate()
+			print(calc_position(Vector2(i, j)), " ", i, j)
+			background.position = calc_position(Vector2(i, j))
+			add_child(background)
 			mellomliste.append(0)
 			unoccupiedSpaces.append(Vector2(i, j))
 		map.append(mellomliste)
 		refrence_map.append(mellomliste.duplicate())
-
-
-
-	
+		
+func calc_map_size():
+	return map_size * (tilesize + border)
 func get_random_position():
 	
 	var randint = randi() % len(unoccupiedSpaces)
 	var pos = unoccupiedSpaces[randint]
 	unoccupiedSpaces.pop_at(randint)
 	return (pos)
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 
 func spawn_tile():
 	var tileInstance = tile.instantiate()
 	var pos = get_random_position()
-	print(pos)
+
 	map[pos[0]][pos[1]] = 2
 	
-	print("spawn at" , Vector2(pos[0], pos[1])*tilesize - Vector2(tilesize, tilesize)/2)
-	tileInstance.get_node("ColorRect").position = Vector2(pos[0], pos[1])*tilesize - Vector2(tilesize, tilesize)/2
+	
+	tileInstance.get_node("ColorRect").position = calc_position(pos)
 	refrence_map[pos[0]][pos[1]] = tileInstance.get_node("ColorRect")
 	add_child(tileInstance)
-	
-	
-
-
-
-
-'''
-Lag en funksjon for hver vei som sjekker nærmeste tile. så sjekk om de kan merges, merges hvis eller plasser på forrige tile
-'''
 				
 var start_position_test = Vector2(1 ,1)
 func test():
@@ -65,59 +60,77 @@ func test():
 	print(check_right(start_position_test))
 	print(check_left(start_position_test))
 	
+func update_maps(index, next_index):
+	map[next_index[0]][next_index[1]] = map[index[0]][index[1]]
+	refrence_map[next_index[0]][next_index[1]] = refrence_map[index[0]][index[1]]
+	map[index[0]][index[1]] = 0
+	refrence_map[index[0]][index[1]] = 0
 	
-func check_down(position: Vector2):
+func calc_position(index: Vector2):
+	return Vector2(index[0], index[1])*(tilesize + border) + offsett
+func check_right(position: Vector2):
 	for i in range(position[0]+1, map_size):
 		if map[i][position[1]]:
 			return Vector2(i, position[1])
 	return Vector2(map_size-1 , position[1])
 	
-func check_up(position: Vector2):
+func check_left(position: Vector2):
 	for i in range(position[0]-1, -1, -1):
 
 		if map[i][position[1]]:
 			return Vector2(i, position[1])
 	return Vector2(0, position[1])
 	
-func check_right(position: Vector2):
+func check_down(position: Vector2):
 	for i in range(position[1]+1, map_size):
 		if map[position[0]][i]:
 			return Vector2(position[0], i)
 	return Vector2(position[0], map_size-1)
 
-func check_left(position: Vector2):
+func check_up(position: Vector2):
+	
 	for i in range(position[1]-1, -1, -1):
 		if map[position[0]][i]:
 			return Vector2(position[0], i)
 	return Vector2(position[0], 0)
-func move_right():
+
+func move_down():
 
 	for i in range(map_size):
-		for j in range(map_size-1):
+		for j in range(map_size-1, -1, -1):
 			if refrence_map[i][j]:
-				print("found tile", i, j)
-				var next_tile = check_right(Vector2(i, j))
-				print(map)
-				print(next_tile)
-				print("position now", refrence_map[i][j].position)
-				if map[next_tile[0]][next_tile[1]] == 0:
-					print(Vector2(next_tile[0], next_tile[1])*tilesize)
-					refrence_map[i][j].move(Vector2(next_tile[0], next_tile[1])*tilesize - Vector2(tilesize, tilesize)/2)
-					
-					
-func move_left():
-	
+				move(Vector2(i, j),check_down(Vector2(i, j)), Vector2(0, -1))
+
+func move_up():
+
 	for i in range(map_size):
-		
 		for j in range(1, map_size):
 			if refrence_map[i][j]:
-				var next_tile = check_left(Vector2(i, j))
-				print(map)
-				if map[next_tile[0]][next_tile[1]] == 0:
-					print("should move")
-					refrence_map[i][j].move(Vector2(next_tile[0], next_tile[1])*tilesize)
-			
+				move(Vector2(i, j),check_up(Vector2(i, j)), Vector2(0, 1))
+func move_left():
+
+	for i in range(1, map_size):
+		for j in range(map_size):
+			if refrence_map[i][j]:
+				move(Vector2(i, j),check_left(Vector2(i, j)), Vector2(1, 0) )
+func move_right():
 	
+	for i in range(map_size-1, -1, -1):
+		for j in range(map_size):
+			if refrence_map[i][j]:
+				move(Vector2(i, j),check_right(Vector2(i, j)), Vector2(-1, 0) )
+				
+func move(first_tile, next_tile, direction):
+		if map[next_tile[0]][next_tile[1]] == 0:
+			refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile))
+			update_maps(first_tile, next_tile)
+			
+		#elif map[next_tile[0]][next_tile[1]] == map[first_tile[0]][first_tile[1]]:
+##			merge
+			#pass
+		else:
+			refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile + direction))
+			update_maps(first_tile, next_tile + direction)
 
 
 func _process(delta: float) -> void:
@@ -125,12 +138,10 @@ func _process(delta: float) -> void:
 		spawn_tile()
 	if not_moving:
 		if Input.is_action_just_pressed("move_down"):
-			pass
+			move_down()
 		if Input.is_action_just_pressed("move_right"):
 			move_right()
 		if Input.is_action_just_pressed("move_left"):
 			move_left()
 		if Input.is_action_just_pressed("move_up"):
-			pass
-
-	
+			move_up()

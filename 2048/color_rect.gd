@@ -20,11 +20,11 @@ func _ready() -> void:
 
 func move(position: Vector2) -> void:
 	not_moving = false
-	print("false")
+	
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position",position, 0.1)
 	tween.connect("finished", unpause)
 			
 func unpause():
-	print("true")
+	
 	not_moving = true
