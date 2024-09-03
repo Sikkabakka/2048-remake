@@ -5,9 +5,10 @@ var not_moving = true
 @onready var label: Label = $Label
 var value = 2
 var tilesize = Vector2(100, 100)
+var next_position : Vector2
 # Called when the node enters the scene tree for the first time.
 
-
+var tween : Tween
 var mapsize = 4
 func _ready() -> void:
 	if value == 2:
@@ -20,17 +21,20 @@ func _ready() -> void:
 	
 	
 
-func move(position: Vector2) -> void:
+func move(tween_position: Vector2) -> void:
 	not_moving = false
+
+	if tween and tween.is_running():
+		position = next_position
+		tween.kill()
 	
-	var tween = get_tree().create_tween()
-	tween.tween_property(self, "position",position, 0.1)
+	tween = get_tree().create_tween()
+	next_position = tween_position
+
+	tween.tween_property(self, "position",tween_position, 0.1)
 	tween.connect("finished", unpause)
 func die():
 	queue_free()
-	#var tween = get_tree().create_tween()
-	#tween.tween_property(self, "size",Vector2(0, 0), 2)
-	#tween.connect("finished", remove)
 func remove():
 	queue_free()
 func unpause():

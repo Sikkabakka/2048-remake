@@ -23,7 +23,11 @@ var offsett = -Vector2(calc_map_size(), calc_map_size())/2
 var colorDict = {
 	2 : "yellow",
 	4 : "orange",
-	8 : "red"
+	8 : "red",
+	16: "blue",
+	32: "forest_green",
+	64: "hot_pink",
+	128: "LIGHT_GOLDENROD"
 }
 
 
@@ -173,6 +177,7 @@ func move(first_tile, next_tile, direction):
 				refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile + direction))
 				update_maps(first_tile, next_tile + direction)
 
+	
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("space"):
@@ -190,3 +195,5 @@ func _process(delta: float) -> void:
 		if Input.is_action_just_pressed("move_up"):
 			move_up()
 			spawn_random_tile()
+		
+		
