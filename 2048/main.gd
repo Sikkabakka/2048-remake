@@ -6,13 +6,13 @@ extends Control
 func _ready() -> void:
 	initialize_map(map_size)
 	spawn_random_tile()
-	label.position = Vector2(0, map_size*tilesize + 30)
+	label.position = Vector2(-map_size*tilesize + 30,0 )
 	label.text = "Score:"
 	
 	#camera_2d.zoom = map_size/4
 	pass # Replace with function body.
 
-var map_size = 2;
+var map_size = 4
 var map = [];
 var refrence_map = []
 var tilesize = 100
@@ -75,7 +75,7 @@ func spawn_random_tile():
 		var tileInstance = tile.instantiate()
 		tileInstance.move_complete.connect(move_complete)
 		var pos = get_random_position()
-
+		tileInstance.get_node("ColorRect").tilesize =(Vector2(tilesize, tilesize))
 		map[pos[0]][pos[1]] = 2
 		
 		
@@ -172,9 +172,12 @@ func move_right():
 var moved_counter = 0
 
 func move_complete():
-	print(moved_counter, "HERE")
+
 	moved_counter -= 1
+	print(moved_counter)
 	if moved_counter == 0:
+		
+		
 		print("complete!")
 
 func move(first_tile, next_tile, direction):
@@ -185,6 +188,8 @@ func move(first_tile, next_tile, direction):
 			update_maps(first_tile, next_tile)
 		
 		elif map[next_tile[0]][next_tile[1]] == map[first_tile[0]][first_tile[1]]:
+			moved_counter -= 1
+			refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile))
 			merge(first_tile, next_tile)
 		
 			
@@ -204,17 +209,22 @@ func _process(delta: float) -> void:
 		if Input.is_action_just_pressed("move_down"):
 			move_down()
 			spawn_random_tile()
+			update_score()
 			
 		if Input.is_action_just_pressed("move_right"):
 			move_right()
 			spawn_random_tile()
+			update_score()
 		
 		if Input.is_action_just_pressed("move_left"):
 			move_left()
 			spawn_random_tile()
+			update_score()
 			
 		if Input.is_action_just_pressed("move_up"):
 			move_up()
 			spawn_random_tile()
-		update_score()
+			update_score()
+		
+		
 		
