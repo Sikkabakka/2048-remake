@@ -6,10 +6,11 @@ var not_moving = true
 var value = 2
 var tilesize = Vector2(100, 100)
 var next_position : Vector2
-# Called when the node enters the scene tree for the first time.
-signal move_complete
+
 var tween : Tween
 var mapsize = 4
+
+
 func _ready() -> void:
 	if value == 2:
 		label.text = "2"
@@ -37,7 +38,8 @@ func move(tween_position: Vector2) -> void:
 func decrease_move():
 	move_counter -= 1
 	if move_counter == 0:
-		emit_signal("move_complete")
+		print("CALLING")
+		owner.move_complete.emit()
 func die():
 	queue_free()
 func remove():

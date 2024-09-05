@@ -12,7 +12,7 @@ func _ready() -> void:
 	#camera_2d.zoom = map_size/4
 	pass # Replace with function body.
 
-var map_size = 4;
+var map_size = 2;
 var map = [];
 var refrence_map = []
 var tilesize = 100
@@ -73,6 +73,7 @@ func spawn_random_tile():
 	if unoccupiedSpaces:
 			
 		var tileInstance = tile.instantiate()
+		tileInstance.move_complete.connect(move_complete)
 		var pos = get_random_position()
 
 		map[pos[0]][pos[1]] = 2
@@ -168,29 +169,34 @@ func move_right():
 		for j in range(map_size):
 			if refrence_map[i][j]:
 				move(Vector2(i, j),check_right(Vector2(i, j)), Vector2(-1, 0) )
-				
+var moved_counter = 0
+
+func move_complete():
+	print(moved_counter, "HERE")
+	moved_counter -= 1
+	if moved_counter == 0:
+		print("complete!")
+
 func move(first_tile, next_tile, direction):
-		if first_tile != next_tile:
-			if map[next_tile[0]][next_tile[1]] == 0:
-				refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile))
-				update_maps(first_tile, next_tile)
-				print("move")
-				print(refrence_map)
-				print(map)
-				print(next_tile)
-				
-			elif map[next_tile[0]][next_tile[1]] == map[first_tile[0]][first_tile[1]]:
-				merge(first_tile, next_tile)
-				print("merge")
-				print(refrence_map)
-				print(map)
-				
-			elif first_tile != next_tile+direction:
-				refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile + direction))
-				update_maps(first_tile, next_tile + direction)
+	moved_counter += 1
+	if first_tile != next_tile:
+		if map[next_tile[0]][next_tile[1]] == 0:
+			refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile))
+			update_maps(first_tile, next_tile)
+		
+		elif map[next_tile[0]][next_tile[1]] == map[first_tile[0]][first_tile[1]]:
+			merge(first_tile, next_tile)
+		
+			
+		elif first_tile != next_tile+direction:
+			refrence_map[first_tile[0]][first_tile[1]].move(calc_position(next_tile + direction))
+			update_maps(first_tile, next_tile + direction)
 
-	
-
+func update_score():
+	label.text = "score: " + str(calc_score())
+'''
+Sjekk hvor mange som skal bevege seg og spawn etter at du har fått tilbake alle signalene
+'''
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("space"):
 		spawn_random_tile()
@@ -198,14 +204,17 @@ func _process(delta: float) -> void:
 		if Input.is_action_just_pressed("move_down"):
 			move_down()
 			spawn_random_tile()
+			
 		if Input.is_action_just_pressed("move_right"):
 			move_right()
 			spawn_random_tile()
+		
 		if Input.is_action_just_pressed("move_left"):
 			move_left()
 			spawn_random_tile()
+			
 		if Input.is_action_just_pressed("move_up"):
 			move_up()
 			spawn_random_tile()
-		
+		update_score()
 		
