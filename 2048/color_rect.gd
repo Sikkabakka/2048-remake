@@ -7,7 +7,7 @@ var value = 2
 var tilesize = Vector2(100, 100)
 var next_position : Vector2
 # Called when the node enters the scene tree for the first time.
-
+signal move_complete
 var tween : Tween
 var mapsize = 4
 func _ready() -> void:
@@ -20,19 +20,24 @@ func _ready() -> void:
 	
 	
 	
+var move_counter
 
 func move(tween_position: Vector2) -> void:
 	not_moving = false
-
+	#move_counter += 1
 	if tween and tween.is_running():
 		position = next_position
 		tween.kill()
-	
+		#decrease_move()
 	tween = get_tree().create_tween()
 	next_position = tween_position
 
 	tween.tween_property(self, "position",tween_position, 0.1)
-	tween.connect("finished", unpause)
+	#tween.connect("finished", decrease_move)
+func decrease_move():
+	move_counter -= 1
+	if move_counter == 0:
+		emit_signal("move_complete")
 func die():
 	queue_free()
 func remove():
